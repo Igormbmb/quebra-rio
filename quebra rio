@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Quebra-Cabeça Rio de Janeiro</title>
+  <style>
+    body {
+      background-color: #f0f8ff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      color: #0074D9;
+    }
+    #puzzle {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 2px;
+    }
+    .tile {
+      width: 100px;
+      height: 100px;
+      background-size: 300px 300px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    #message {
+      display: none;
+      margin-top: 20px;
+      font-size: 20px;
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Monte o Quebra-Cabeça do Rio!</h1>
+  <div id="puzzle"></div>
+  <div id="message">Parabéns! Que viagem linda pelo Rio! 🌞🌴</div>
+
+  <script>
+    const puzzle = document.getElementById("puzzle");
+    const message = document.getElementById("message");
+    const size = 3;
+    const tiles = [];
+    const imageURL = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Rio_de_Janeiro_-_Rafael_Defavari.jpg/300px-Rio_de_Janeiro_-_Rafael_Defavari.jpg";
+
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+        tile.style.backgroundImage = `url(${imageURL})`;
+        tile.style.backgroundPosition = `-${col * 100}px -${row * 100}px`;
+        tile.dataset.index = row * size + col;
+        tiles.push(tile);
+      }
+    }
+
+    // Embaralha as peças
+    tiles.sort(() => Math.random() - 0.5);
+    tiles.forEach(tile => puzzle.appendChild(tile));
+
+    let selected = null;
+
+    puzzle.addEventListener("click", (e) => {
+      const target = e.target;
+      if (!target.classList.contains("tile")) return;
+
+      if (!selected) {
+        selected = target;
+        selected.style.border = "2px solid red";
+      } else {
+        [selected.style.border, target.style.border] = ["1px solid #ccc", "1px solid #ccc"];
+
+        const tempIndex = selected.dataset.index;
+        const selectedIndex = Array.from(puzzle.children).indexOf(selected);
+        const targetIndex = Array.from(puzzle.children).indexOf(target);
+
+        puzzle.insertBefore(selected, puzzle.children[targetIndex]);
+        puzzle.insertBefore(target, puzzle.children[selectedIndex]);
+
+        selected = null;
+        checkWin();
+      }
+    });
+
+    function checkWin() {
+      const pieces = Array.from(puzzle.children);
+      for (let i = 0; i < pieces.length; i++) {
+        if (pieces[i].dataset.index != i) return;
+      }
+      message.style.display = "block";
+    }
+  </script>
+</body>
+</html>
